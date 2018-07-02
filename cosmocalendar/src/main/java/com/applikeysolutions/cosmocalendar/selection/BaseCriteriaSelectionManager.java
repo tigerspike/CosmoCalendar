@@ -25,37 +25,6 @@ public abstract class BaseCriteriaSelectionManager extends BaseSelectionManager 
         notifyCriteriaUpdates();
     }
 
-    public void addCriteriaList(List<BaseCriteria> criteriaList) {
-        if (this.criteriaList != null) {
-            this.criteriaList.addAll(criteriaList);
-        } else {
-            setCriteriaList(criteriaList);
-        }
-        notifyCriteriaUpdates();
-    }
-
-    public void addCriteria(BaseCriteria criteria) {
-        if (criteriaList == null) {
-            criteriaList = new ArrayList<>();
-        }
-        criteriaList.add(criteria);
-        notifyCriteriaUpdates();
-    }
-
-    public void removeCriteria(BaseCriteria criteria) {
-        if (criteriaList != null) {
-            criteriaList.remove(criteria);
-        }
-        notifyCriteriaUpdates();
-    }
-
-    public void removeCriteriaList(final List<BaseCriteria> listToDelete) {
-        if (criteriaList != null) {
-            criteriaList.removeAll(listToDelete);
-        }
-        notifyCriteriaUpdates();
-    }
-
     private void notifyCriteriaUpdates() {
         if (onDaySelectedListener != null) {
             onDaySelectedListener.onDaySelected();
@@ -63,11 +32,7 @@ public abstract class BaseCriteriaSelectionManager extends BaseSelectionManager 
     }
 
     public boolean hasCriteria() {
-        if (criteriaList == null || criteriaList.isEmpty()) {
-            return false;
-        } else {
-            return true;
-        }
+        return criteriaList != null && !criteriaList.isEmpty();
     }
 
     public boolean isDaySelectedByCriteria(Day day) {

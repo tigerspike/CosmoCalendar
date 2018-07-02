@@ -4,11 +4,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.applikeysolutions.customizablecalendar.R;
 import com.applikeysolutions.cosmocalendar.adapter.DaysAdapter;
 import com.applikeysolutions.cosmocalendar.adapter.viewholder.MonthHolder;
-import com.applikeysolutions.cosmocalendar.settings.SettingsManager;
 import com.applikeysolutions.cosmocalendar.model.Month;
+import com.applikeysolutions.cosmocalendar.settings.SettingsManager;
+import com.applikeysolutions.customizablecalendar.R;
 
 public class MonthDelegate {
 
@@ -26,7 +26,7 @@ public class MonthDelegate {
         return holder;
     }
 
-    public void onBindMonthHolder(Month month, MonthHolder holder, int position) {
-        holder.bind(month);
+    public void onBindMonthHolder(Month month, MonthHolder holder, int position, int firstDayOfWeek) {
+        holder.bind(month, firstDayOfWeek);
     }
 }

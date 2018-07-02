@@ -13,13 +13,12 @@ public class ConnectedDaysManager {
 
     private List<ConnectedDays> connectedDaysList;
 
-    private ConnectedDaysManager(){
+    private ConnectedDaysManager() {
 
     }
 
-    public static ConnectedDaysManager getInstance(){
-        if(mInstance == null)
-        {
+    public static ConnectedDaysManager getInstance() {
+        if (mInstance == null) {
             mInstance = new ConnectedDaysManager();
         }
         return mInstance;
@@ -33,20 +32,20 @@ public class ConnectedDaysManager {
         this.connectedDaysList = connectedDaysList;
     }
 
-    public void addConnectedDays(ConnectedDays connectedDays){
-        if(connectedDaysList == null){
+    public void addConnectedDays(ConnectedDays connectedDays) {
+        if (connectedDaysList == null) {
             connectedDaysList = new ArrayList<>();
         }
         connectedDaysList.add(connectedDays);
     }
 
-    public boolean isAnyConnectedDays(){
+    public boolean isAnyConnectedDays() {
         return !(connectedDaysList == null || connectedDaysList.isEmpty());
     }
 
-    public void applySettingsToDay(Day day){
-        for (ConnectedDays connectedDays : connectedDaysList){
-            for (long dayLong : connectedDays.getDays()){
+    public void applySettingsToDay(Day day) {
+        for (ConnectedDays connectedDays : connectedDaysList) {
+            for (long dayLong : connectedDays.getDays()) {
                 Calendar disabledDayCalendar = DateUtils.getCalendar(dayLong);
                 if (day.getCalendar().get(Calendar.YEAR) == disabledDayCalendar.get(Calendar.YEAR)
                         && day.getCalendar().get(Calendar.DAY_OF_YEAR) == disabledDayCalendar.get(Calendar.DAY_OF_YEAR)) {

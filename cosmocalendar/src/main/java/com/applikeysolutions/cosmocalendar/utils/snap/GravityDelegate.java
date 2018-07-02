@@ -1,7 +1,6 @@
 package com.applikeysolutions.cosmocalendar.utils.snap;
 
 
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
@@ -57,15 +56,14 @@ class GravityDelegate {
         this.listener = listener;
     }
 
-    public void setGravity(int gravity){
+    public void setGravity(int gravity) {
         this.gravity = gravity;
     }
 
     public void attachToRecyclerView(@Nullable RecyclerView recyclerView) {
         if (recyclerView != null) {
             recyclerView.setOnFlingListener(null);
-            if ((gravity == Gravity.START || gravity == Gravity.END)
-                    && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            if (gravity == Gravity.START || gravity == Gravity.END) {
                 isRtlHorizontal
                         = recyclerView.getContext().getResources().getConfiguration()
                         .getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;

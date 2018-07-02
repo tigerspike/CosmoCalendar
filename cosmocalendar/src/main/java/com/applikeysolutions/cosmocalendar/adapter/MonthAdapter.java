@@ -24,17 +24,17 @@ import java.util.Set;
 public class MonthAdapter extends RecyclerView.Adapter<MonthHolder> {
 
     private final List<Month> months;
-
+    private final CalendarView calendarView;
+    private final SettingsManager settingsManager;
     private MonthDelegate monthDelegate;
-
-    private CalendarView calendarView;
     private BaseSelectionManager selectionManager;
-    private DaysAdapter daysAdapter;
 
     private MonthAdapter(List<Month> months,
                          MonthDelegate monthDelegate,
                          CalendarView calendarView,
-                         BaseSelectionManager selectionManager) {
+                         BaseSelectionManager selectionManager,
+                         SettingsManager settingsManager) {
+        this.settingsManager = settingsManager;
         setHasStableIds(true);
         this.months = months;
         this.monthDelegate = monthDelegate;
@@ -42,17 +42,17 @@ public class MonthAdapter extends RecyclerView.Adapter<MonthHolder> {
         this.selectionManager = selectionManager;
     }
 
-    public void setSelectionManager(BaseSelectionManager selectionManager) {
-        this.selectionManager = selectionManager;
-    }
-
     public BaseSelectionManager getSelectionManager() {
         return selectionManager;
     }
 
+    public void setSelectionManager(BaseSelectionManager selectionManager) {
+        this.selectionManager = selectionManager;
+    }
+
     @Override
     public MonthHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        daysAdapter = new DaysAdapter.DaysAdapterBuilder()
+        DaysAdapter daysAdapter = new DaysAdapter.DaysAdapterBuilder()
                 .setDayOfWeekDelegate(new DayOfWeekDelegate(calendarView))
                 .setOtherDayDelegate(new OtherDayDelegate(calendarView))
                 .setDayDelegate(new DayDelegate(calendarView, this))
@@ -64,7 +64,7 @@ public class MonthAdapter extends RecyclerView.Adapter<MonthHolder> {
     @Override
     public void onBindViewHolder(MonthHolder holder, int position) {
         final Month month = months.get(position);
-        monthDelegate.onBindMonthHolder(month, holder, position);
+        monthDelegate.onBindMonthHolder(month, holder, position, settingsManager.getFirstDayOfWeek());
     }
 
     @Override
@@ -86,43 +86,30 @@ public class MonthAdapter extends RecyclerView.Adapter<MonthHolder> {
         return months;
     }
 
-    public static class MonthAdapterBuilder {
-
-        private List<Month> months;
-        private MonthDelegate monthDelegate;
-        private CalendarView calendarView;
-        private BaseSelectionManager selectionManager;
-
-        public MonthAdapterBuilder setMonths(List<Month> months) {
-            this.months = months;
-            return this;
-        }
-
-        public MonthAdapterBuilder setMonthDelegate(MonthDelegate monthHolderDelegate) {
-            this.monthDelegate = monthHolderDelegate;
-            return this;
-        }
-
-        public MonthAdapterBuilder setCalendarView(CalendarView calendarView) {
-            this.calendarView = calendarView;
-            return this;
-        }
-
-        public MonthAdapterBuilder setSelectionManager(BaseSelectionManager selectionManager) {
-            this.selectionManager = selectionManager;
-            return this;
-        }
-
-        public MonthAdapter createMonthAdapter() {
-            return new MonthAdapter(months,
-                    monthDelegate,
-                    calendarView,
-                    selectionManager);
-        }
-    }
-
     public void setWeekendDays(Set<Long> weekendDays) {
         setDaysAccordingToSet(weekendDays, DayFlag.WEEKEND);
+    }
+
+    public void setMinDate(Calendar minDate) {
+        for (Month month : months) {
+            for (Day day : month.getDays()) {
+                if (!day.isDisabled()) {
+                    day.setDisabled(CalendarUtils.isDayDisabledByMinDate(day, minDate));
+                }
+            }
+        }
+        notifyDataSetChanged();
+    }
+
+    public void setMaxDate(Calendar maxDate) {
+        for (Month month : months) {
+            for (Day day : month.getDays()) {
+                if (!day.isDisabled()) {
+                    day.setDisabled(CalendarUtils.isDayDisabledByMaxDate(day, maxDate));
+                }
+            }
+        }
+        notifyDataSetChanged();
     }
 
     public void setDisabledDays(Set<Long> disabledDays) {
@@ -133,10 +120,10 @@ public class MonthAdapter extends RecyclerView.Adapter<MonthHolder> {
         setDaysAccordingToSet(connectedCalendarDays, DayFlag.FROM_CONNECTED_CALENDAR);
     }
 
-    public void setDisabledDaysCriteria(DisabledDaysCriteria criteria){
+    public void setDisabledDaysCriteria(DisabledDaysCriteria criteria) {
         for (Month month : months) {
             for (Day day : month.getDays()) {
-                if(!day.isDisabled()){
+                if (!day.isDisabled()) {
                     day.setDisabled(CalendarUtils.isDayDisabledByCriteria(day, criteria));
                 }
             }
@@ -164,6 +151,48 @@ public class MonthAdapter extends RecyclerView.Adapter<MonthHolder> {
                 }
             }
             notifyDataSetChanged();
+        }
+    }
+
+    public static class MonthAdapterBuilder {
+
+        private List<Month> months;
+        private MonthDelegate monthDelegate;
+        private CalendarView calendarView;
+        private BaseSelectionManager selectionManager;
+        private SettingsManager settingsManager;
+
+        public MonthAdapterBuilder setMonths(List<Month> months) {
+            this.months = months;
+            return this;
+        }
+
+        public MonthAdapterBuilder setMonthDelegate(MonthDelegate monthHolderDelegate) {
+            this.monthDelegate = monthHolderDelegate;
+            return this;
+        }
+
+        public MonthAdapterBuilder setCalendarView(CalendarView calendarView) {
+            this.calendarView = calendarView;
+            return this;
+        }
+
+        public MonthAdapterBuilder setSelectionManager(BaseSelectionManager selectionManager) {
+            this.selectionManager = selectionManager;
+            return this;
+        }
+
+        public MonthAdapterBuilder setSettingsManager(SettingsManager settingsManager) {
+            this.settingsManager = settingsManager;
+            return this;
+        }
+
+        public MonthAdapter createMonthAdapter() {
+            return new MonthAdapter(months,
+                    monthDelegate,
+                    calendarView,
+                    selectionManager,
+                    settingsManager);
         }
     }
 }

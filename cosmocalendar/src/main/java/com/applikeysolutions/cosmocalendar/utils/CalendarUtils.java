@@ -5,13 +5,10 @@ import android.content.res.Resources;
 import android.graphics.BitmapFactory;
 import android.view.WindowManager;
 
-import com.applikeysolutions.cosmocalendar.settings.SettingsManager;
 import com.applikeysolutions.cosmocalendar.model.Day;
 import com.applikeysolutions.cosmocalendar.model.DayOfWeek;
 import com.applikeysolutions.cosmocalendar.model.Month;
-import com.applikeysolutions.cosmocalendar.selection.selectionbar.SelectionBarContentItem;
-import com.applikeysolutions.cosmocalendar.selection.selectionbar.SelectionBarItem;
-import com.applikeysolutions.cosmocalendar.selection.selectionbar.SelectionBarTitleItem;
+import com.applikeysolutions.cosmocalendar.settings.SettingsManager;
 import com.applikeysolutions.cosmocalendar.settings.lists.DisabledDaysCriteria;
 
 import java.text.SimpleDateFormat;
@@ -23,6 +20,23 @@ import java.util.Locale;
 import java.util.Set;
 
 public final class CalendarUtils {
+
+    public static LinearLayout populateDaysOfWeekLayout(int firstDayOfWeek, final LinearLayout daysOfWeekLayout) {
+        daysOfWeekLayout.removeAllViews();
+        LinearLayout.LayoutParams textViewParam = new LinearLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        textViewParam.weight = 1;
+        Context context = daysOfWeekLayout.getContext();
+        for (String title : CalendarUtils.createWeekDayTitles(firstDayOfWeek)) {
+            SquareTextView tvDayTitle = new SquareTextView(context);
+            tvDayTitle.setText(title.toUpperCase());
+            tvDayTitle.setLayoutParams(textViewParam);
+            tvDayTitle.setGravity(Gravity.CENTER);
+            tvDayTitle.setTextColor(context.getColor(R.color.default_week_day_title_text_color));
+            tvDayTitle.setTextAppearance(R.style.CalendarWeekDayTextStyle);
+            daysOfWeekLayout.addView(tvDayTitle);
+        }
+        return daysOfWeekLayout;
+    }
 
     public static Month createMonth(Date date, SettingsManager settingsManager) {
         final List<Day> days = new ArrayList<>();
@@ -97,39 +111,12 @@ public final class CalendarUtils {
         final List<Month> months = new ArrayList<>();
 
         final Calendar calendar = Calendar.getInstance();
-        for (int i = 0; i < SettingsManager.DEFAULT_MONTH_COUNT / 2; i++) {
-            calendar.add(Calendar.MONTH, -1);
-        }
 
         for (int i = 0; i < SettingsManager.DEFAULT_MONTH_COUNT; i++) {
             months.add(createMonth(calendar.getTime(), settingsManager));
             DateUtils.addMonth(calendar);
         }
         return months;
-    }
-
-    /**
-     * Returns selected Days grouped by month/year
-     *
-     * @param selectedDays
-     * @return
-     */
-    public static List<SelectionBarItem> getSelectedDayListForMultipleMode(List<Day> selectedDays) {
-        List<SelectionBarItem> result = new ArrayList<>();
-
-        Calendar tempCalendar = Calendar.getInstance();
-        int tempYear = -1;
-        int tempMonth = -1;
-        for (Day day : selectedDays) {
-            tempCalendar.setTime(day.getCalendar().getTime());
-            if (tempCalendar.get(Calendar.YEAR) != tempYear || tempCalendar.get(Calendar.MONTH) != tempMonth) {
-                result.add(new SelectionBarTitleItem(getYearNameTitle(day)));
-                tempYear = tempCalendar.get(Calendar.YEAR);
-                tempMonth = tempCalendar.get(Calendar.MONTH);
-            }
-            result.add(new SelectionBarContentItem(day));
-        }
-        return result;
     }
 
     public static String getYearNameTitle(Day day) {
@@ -157,12 +144,22 @@ public final class CalendarUtils {
             day.setWeekend(settingsManager.getWeekendDays().contains(day.getCalendar().get(Calendar.DAY_OF_WEEK)));
         }
 
+        if (settingsManager.getMinDate() != null) {
+            day.setDisabled(isDayDisabledByMinDate(day, settingsManager.getMinDate()));
+        }
+
+        if (settingsManager.getMaxDate() != null) {
+            if (!day.isDisabled()) {
+                day.setDisabled(isDayDisabledByMaxDate(day, settingsManager.getMaxDate()));
+            }
+        }
+
         if (settingsManager.getDisabledDays() != null) {
             day.setDisabled(isDayInSet(day, settingsManager.getDisabledDays()));
         }
 
         if (settingsManager.getDisabledDaysCriteria() != null) {
-            if(!day.isDisabled()){
+            if (!day.isDisabled()) {
                 day.setDisabled(isDayDisabledByCriteria(day, settingsManager.getDisabledDaysCriteria()));
             }
         }
@@ -183,9 +180,21 @@ public final class CalendarUtils {
         return false;
     }
 
+    public static boolean isDayDisabledByMinDate(Day day, Calendar minDate) {
+        return day.getCalendar().get(Calendar.YEAR) < minDate.get(Calendar.YEAR)
+                || day.getCalendar().get(Calendar.YEAR) == minDate.get(Calendar.YEAR)
+                && day.getCalendar().get(Calendar.DAY_OF_YEAR) < minDate.get(Calendar.DAY_OF_YEAR);
+    }
+
+    public static boolean isDayDisabledByMaxDate(Day day, Calendar maxDate) {
+        return day.getCalendar().get(Calendar.YEAR) > maxDate.get(Calendar.YEAR)
+                || day.getCalendar().get(Calendar.YEAR) == maxDate.get(Calendar.YEAR)
+                && day.getCalendar().get(Calendar.DAY_OF_YEAR) > maxDate.get(Calendar.DAY_OF_YEAR);
+    }
+
     public static boolean isDayDisabledByCriteria(Day day, DisabledDaysCriteria criteria) {
         int field = -1;
-        switch (criteria.getCriteriaType()){
+        switch (criteria.getCriteriaType()) {
             case DAYS_OF_MONTH:
                 field = Calendar.DAY_OF_MONTH;
                 break;
@@ -195,15 +204,15 @@ public final class CalendarUtils {
                 break;
         }
 
-        for(int dayInt : criteria.getDays()){
-            if(dayInt == day.getCalendar().get(field)){
+        for (int dayInt : criteria.getDays()) {
+            if (dayInt == day.getCalendar().get(field)) {
                 return true;
             }
         }
         return false;
     }
 
-    public static int getIconHeight(Resources resources, int iconResId){
+    public static int getIconHeight(Resources resources, int iconResId) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeResource(resources, iconResId, options);

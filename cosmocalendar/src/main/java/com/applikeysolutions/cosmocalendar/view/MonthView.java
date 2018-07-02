@@ -13,9 +13,9 @@ import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import com.applikeysolutions.cosmocalendar.utils.Constants;
 import com.applikeysolutions.cosmocalendar.adapter.DaysAdapter;
 import com.applikeysolutions.cosmocalendar.model.Month;
+import com.applikeysolutions.cosmocalendar.utils.Constants;
 
 public class MonthView extends FrameLayout {
 
@@ -56,12 +56,12 @@ public class MonthView extends FrameLayout {
         addView(rvDays);
     }
 
-    public void setAdapter(DaysAdapter adapter) {
-        rvDays.setAdapter(adapter);
-    }
-
     public DaysAdapter getAdapter() {
         return (DaysAdapter) rvDays.getAdapter();
+    }
+
+    public void setAdapter(DaysAdapter adapter) {
+        rvDays.setAdapter(adapter);
     }
 
     public void initAdapter(Month month) {

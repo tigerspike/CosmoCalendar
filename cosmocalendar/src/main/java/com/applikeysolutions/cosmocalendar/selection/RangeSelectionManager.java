@@ -30,10 +30,10 @@ public class RangeSelectionManager extends BaseSelectionManager {
             }
             if (tempDay.getCalendar().getTime().before(day.getCalendar().getTime())) {
                 days = Pair.create(tempDay, day);
+                tempDay = null;
             } else {
-                days = Pair.create(day, tempDay);
+                tempDay = day;
             }
-            tempDay = null;
         }
         onDaySelectedListener.onDaySelected();
     }

@@ -49,8 +49,7 @@ public class GravitySnapHelper extends LinearSnapHelper {
     @Override
     public int[] calculateDistanceToFinalSnap(@NonNull RecyclerView.LayoutManager layoutManager,
                                               @NonNull View targetView) {
-        int[] result = delegate.calculateDistanceToFinalSnap(layoutManager, targetView);
-        return result;
+        return delegate.calculateDistanceToFinalSnap(layoutManager, targetView);
     }
 
     @Override
@@ -69,7 +68,7 @@ public class GravitySnapHelper extends LinearSnapHelper {
         delegate.enableLastItemSnap(snap);
     }
 
-    public void setGravity(int gravity){
+    public void setGravity(int gravity) {
         delegate.setGravity(gravity);
     }
 

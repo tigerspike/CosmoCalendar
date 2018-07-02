@@ -3,12 +3,11 @@ package com.applikeysolutions.cosmocalendar.adapter;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
-import com.applikeysolutions.cosmocalendar.utils.Constants;
-import com.applikeysolutions.cosmocalendar.adapter.viewholder.OtherDayHolder;
 import com.applikeysolutions.cosmocalendar.adapter.viewholder.DayHolder;
 import com.applikeysolutions.cosmocalendar.adapter.viewholder.DayOfWeekHolder;
 import com.applikeysolutions.cosmocalendar.model.Day;
 import com.applikeysolutions.cosmocalendar.model.Month;
+import com.applikeysolutions.cosmocalendar.utils.Constants;
 import com.applikeysolutions.cosmocalendar.view.CalendarView;
 import com.applikeysolutions.cosmocalendar.view.ItemViewType;
 import com.applikeysolutions.cosmocalendar.view.delegate.DayDelegate;
@@ -68,9 +67,6 @@ public class DaysAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         switch (holder.getItemViewType()) {
             case ItemViewType.DAY_OF_WEEK:
                 dayOfWeekDelegate.onBindDayHolder(day, (DayOfWeekHolder) holder, position);
-                break;
-            case ItemViewType.OTHER_MONTH_DAY:
-                otherDayDelegate.onBindDayHolder(day, (OtherDayHolder) holder, position);
                 break;
             case ItemViewType.MONTH_DAY:
                 dayDelegate.onBindDayHolder(this, day, (DayHolder) holder, position);
